@@ -1,0 +1,12 @@
+{
+  "name": "emp-attnd-sys",
+  "version": "1.0.0",
+  "description": "Employee Attendance System",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build",
+    "start": "cd frontend && npm start",
+    "install-frontend": "cd frontend && npm install",
+    "install-backend": "cd backend && npm install"
+  },
+  "workspaces": ["frontend", "backend"]
+} 
