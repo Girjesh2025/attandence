@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
 import { attendanceAPI } from '../../utils/api';
 import { toast } from 'react-toastify';
 import { 
-  Clock, 
   MapPin, 
   MessageCircle, 
   CheckCircle, 
@@ -15,7 +13,6 @@ import {
 import moment from 'moment';
 
 const Attendance = () => {
-  const { user } = useAuth();
   const [todayStatus, setTodayStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);

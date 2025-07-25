@@ -8,7 +8,6 @@ import {
   Clock, 
   TrendingUp, 
   Calendar,
-  AlertCircle,
   CheckCircle,
   XCircle,
   Timer,
@@ -22,8 +21,6 @@ import {
   CartesianGrid, 
   Tooltip, 
   ResponsiveContainer,
-  BarChart,
-  Bar,
   PieChart,
   Pie,
   Cell
@@ -104,12 +101,7 @@ const AdminDashboard = () => {
     })) || [];
   };
 
-  const statusColors = {
-    present: '#10b981',
-    late: '#f59e0b',
-    halfDay: '#f59e0b',
-    absent: '#ef4444'
-  };
+
 
   const getStatusIcon = (status) => {
     switch (status) {

@@ -8,8 +8,6 @@ import {
   CheckCircle, 
   XCircle, 
   Timer,
-  User,
-  BarChart3,
   ArrowRight
 } from 'lucide-react';
 import moment from 'moment';

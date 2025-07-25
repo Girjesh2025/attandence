@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { attendanceAPI } from '../../utils/api';
-import { Calendar, Clock, Search, Filter } from 'lucide-react';
+import { Calendar, Search } from 'lucide-react';
 import moment from 'moment';
 
 const MyAttendance = () => {
