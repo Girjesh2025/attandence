@@ -16,7 +16,7 @@ const MyAttendance = () => {
 
   useEffect(() => {
     loadRecords();
-  }, [filters]);
+  }, [filters]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadRecords = async () => {
     try {

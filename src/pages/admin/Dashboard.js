@@ -43,7 +43,7 @@ const AdminDashboard = () => {
       socketService.offAttendanceUpdate(handleAttendanceUpdate);
       socketService.leaveAdminRoom();
     };
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadDashboardData = async () => {
     try {
