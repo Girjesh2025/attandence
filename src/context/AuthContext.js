@@ -26,14 +26,18 @@ const AUTH_ACTIONS = {
 
 // Auth reducer
 const authReducer = (state, action) => {
+  console.log('🔄 Reducer action:', action.type, action.payload);
+  
   switch (action.type) {
     case AUTH_ACTIONS.LOADING:
+      console.log('⏳ Setting loading:', action.payload);
       return {
         ...state,
         isLoading: action.payload,
       };
 
     case AUTH_ACTIONS.LOGIN_SUCCESS:
+      console.log('✅ Login success, setting authenticated to true');
       return {
         ...state,
         user: action.payload.user,
@@ -44,6 +48,7 @@ const authReducer = (state, action) => {
       };
 
     case AUTH_ACTIONS.LOGOUT:
+      console.log('❌ Logout, clearing state');
       return {
         ...initialState,
         isLoading: false,
@@ -80,14 +85,19 @@ export const AuthProvider = ({ children }) => {
   // Check for existing token on app load
   useEffect(() => {
     const checkAuthState = async () => {
+      console.log('🔍 Starting auth check...');
       try {
         const token = localStorage.getItem('token');
         const userData = localStorage.getItem('user');
+
+        console.log('🔍 Auth check - Token:', token ? 'Present' : 'None');
+        console.log('🔍 Auth check - UserData:', userData ? 'Present' : 'None');
 
         if (token && userData) {
           // Check if it's a demo token
           if (token.startsWith('demo_token_')) {
             // Demo mode - don't verify with API, just use stored data
+            console.log('✅ Demo mode - Using stored credentials');
             const user = JSON.parse(userData);
             dispatch({
               type: AUTH_ACTIONS.LOGIN_SUCCESS,
@@ -96,8 +106,10 @@ export const AuthProvider = ({ children }) => {
                 token: token,
               },
             });
+            console.log('✅ Demo mode - Login success dispatched');
           } else {
             // Real token - verify with API
+            console.log('🔄 Real token - Verifying with API');
             try {
               const response = await authAPI.getProfile();
               
@@ -110,16 +122,18 @@ export const AuthProvider = ({ children }) => {
               });
             } catch (error) {
               // Token is invalid, clear storage
+              console.log('❌ Real token - Invalid, clearing storage');
               localStorage.removeItem('token');
               localStorage.removeItem('user');
               dispatch({ type: AUTH_ACTIONS.LOGOUT });
             }
           }
         } else {
+          console.log('❌ No token/userData - Setting loading false');
           dispatch({ type: AUTH_ACTIONS.LOADING, payload: false });
         }
       } catch (error) {
-        console.error('Auth check error:', error);
+        console.error('❌ Auth check error:', error);
         dispatch({ type: AUTH_ACTIONS.LOADING, payload: false });
       }
     };
