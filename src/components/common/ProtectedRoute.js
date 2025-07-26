@@ -6,18 +6,8 @@ const ProtectedRoute = ({ children, requiredRole = null, redirectTo = '/login' }
   const { isAuthenticated, user, isLoading } = useAuth();
   const location = useLocation();
 
-  // Debug logging
-  console.log('🛡️ ProtectedRoute Check:', {
-    isAuthenticated,
-    isLoading,
-    user: user ? { name: user.name, role: user.role } : null,
-    requiredRole,
-    currentPath: location.pathname
-  });
-
   // Show loading state while checking authentication
   if (isLoading) {
-    console.log('⏳ ProtectedRoute - Showing loading state');
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -30,13 +20,11 @@ const ProtectedRoute = ({ children, requiredRole = null, redirectTo = '/login' }
 
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
-    console.log('❌ ProtectedRoute - Not authenticated, redirecting to login');
     return <Navigate to={redirectTo} state={{ from: location }} replace />;
   }
 
   // Check role-based access if required
   if (requiredRole && user?.role !== requiredRole) {
-    console.log('❌ ProtectedRoute - Role mismatch:', { userRole: user?.role, requiredRole });
     // If user is trying to access admin route but is not admin
     if (requiredRole === 'admin' && user?.role !== 'admin') {
       return (
@@ -66,7 +54,6 @@ const ProtectedRoute = ({ children, requiredRole = null, redirectTo = '/login' }
     return <Navigate to="/dashboard" replace />;
   }
 
-  console.log('✅ ProtectedRoute - Access granted');
   // User is authenticated and has required role (if any)
   return children;
 };

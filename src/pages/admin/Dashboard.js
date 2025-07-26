@@ -39,9 +39,14 @@ const AdminDashboard = () => {
     setupRealTimeUpdates();
 
     return () => {
-      // Cleanup socket listeners
-      socketService.offAttendanceUpdate(handleAttendanceUpdate);
-      socketService.leaveAdminRoom();
+      // Cleanup socket listeners only if not in demo mode
+      const token = localStorage.getItem('token');
+      const isDemo = token && token.startsWith('demo_token_');
+      
+      if (!isDemo) {
+        socketService.offAttendanceUpdate(handleAttendanceUpdate);
+        socketService.leaveAdminRoom();
+      }
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -49,16 +54,62 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       
-      // Load attendance statistics
-      const statsResponse = await attendanceAPI.getStats({ period: 'month' });
-      setStats(statsResponse.data);
+      // Check if user token is demo token
+      const token = localStorage.getItem('token');
+      const isDemo = token && token.startsWith('demo_token_');
       
-      // Load recent attendance records
-      const attendanceResponse = await attendanceAPI.getAllRecords({
-        limit: 10,
-        page: 1
-      });
-      setRecentAttendance(attendanceResponse.data.attendance || []);
+      if (isDemo) {
+        // Demo mode - use mock data
+        const mockStats = {
+          totalEmployees: 25,
+          activeToday: 18,
+          attendanceRate: 85.2,
+          avgWorkingHours: 7.8,
+          dailyTrend: [
+            { date: '2025-07-20', present: 22, absent: 3 },
+            { date: '2025-07-21', present: 24, absent: 1 },
+            { date: '2025-07-22', present: 20, absent: 5 },
+            { date: '2025-07-23', present: 23, absent: 2 },
+            { date: '2025-07-24', present: 25, absent: 0 },
+            { date: '2025-07-25', present: 21, absent: 4 },
+            { date: '2025-07-26', present: 18, absent: 7 }
+          ]
+        };
+        
+        const mockAttendance = [
+          {
+            _id: '1',
+            employee: { name: 'John Doe', employeeId: 'EMP001' },
+            checkIn: '2025-07-26T09:00:00Z',
+            checkOut: null,
+            status: 'present',
+            date: '2025-07-26'
+          },
+          {
+            _id: '2', 
+            employee: { name: 'Jane Smith', employeeId: 'EMP002' },
+            checkIn: '2025-07-26T08:45:00Z',
+            checkOut: '2025-07-26T17:30:00Z',
+            status: 'present',
+            date: '2025-07-26'
+          }
+        ];
+        
+        setStats(mockStats);
+        setRecentAttendance(mockAttendance);
+      } else {
+        // Real mode - make API calls
+        // Load attendance statistics
+        const statsResponse = await attendanceAPI.getStats({ period: 'month' });
+        setStats(statsResponse.data);
+        
+        // Load recent attendance records
+        const attendanceResponse = await attendanceAPI.getAllRecords({
+          limit: 10,
+          page: 1
+        });
+        setRecentAttendance(attendanceResponse.data.attendance || []);
+      }
       
     } catch (error) {
       console.error('Error loading dashboard data:', error);
@@ -69,6 +120,17 @@ const AdminDashboard = () => {
   };
 
   const setupRealTimeUpdates = () => {
+    // Check if user token is demo token
+    const token = localStorage.getItem('token');
+    const isDemo = token && token.startsWith('demo_token_');
+    
+    if (isDemo) {
+      // Demo mode - skip socket connections
+      console.log('Demo mode: Skipping real-time updates');
+      return;
+    }
+    
+    // Real mode - setup socket connections
     // Connect to socket and join admin room
     socketService.connect();
     socketService.joinAdminRoom({ userId: user._id, role: user.role });
