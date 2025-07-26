@@ -154,3 +154,4 @@ build/Release
 
 # FuseBox cache
 .fusebox/ 
+.vercel
