@@ -58,6 +58,9 @@ app.get('/health', (req, res) => {
 
 // Demo route for testing without database
 app.get('/api/demo', (req, res) => {
+  const mongoose = require('mongoose');
+  const isMongoConnected = mongoose.connection.readyState === 1;
+  
   res.json({
     success: true,
     message: 'AttendEase API is working!',
@@ -65,7 +68,7 @@ app.get('/api/demo', (req, res) => {
       '✅ Server Running',
       '✅ CORS Configured', 
       '✅ Socket.io Ready',
-      '⚠️ Database Connection Needed'
+      isMongoConnected ? '✅ MongoDB Connected' : '⚠️ Database Connection Needed'
     ]
   });
 });
