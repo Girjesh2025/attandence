@@ -85,22 +85,35 @@ export const AuthProvider = ({ children }) => {
         const userData = localStorage.getItem('user');
 
         if (token && userData) {
-          // Verify token is still valid by fetching user profile
-          try {
-            const response = await authAPI.getProfile();
-            
+          // Check if it's a demo token
+          if (token.startsWith('demo_token_')) {
+            // Demo mode - don't verify with API, just use stored data
+            const user = JSON.parse(userData);
             dispatch({
               type: AUTH_ACTIONS.LOGIN_SUCCESS,
               payload: {
-                user: response.data.user,
+                user: user,
                 token: token,
               },
             });
-          } catch (error) {
-            // Token is invalid, clear storage
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            dispatch({ type: AUTH_ACTIONS.LOGOUT });
+          } else {
+            // Real token - verify with API
+            try {
+              const response = await authAPI.getProfile();
+              
+              dispatch({
+                type: AUTH_ACTIONS.LOGIN_SUCCESS,
+                payload: {
+                  user: response.data.user,
+                  token: token,
+                },
+              });
+            } catch (error) {
+              // Token is invalid, clear storage
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              dispatch({ type: AUTH_ACTIONS.LOGOUT });
+            }
           }
         } else {
           dispatch({ type: AUTH_ACTIONS.LOADING, payload: false });
