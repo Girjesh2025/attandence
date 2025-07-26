@@ -1,23 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import {
-  Calendar,
   Clock,
   Search,
-  Filter,
   Download,
   Edit,
   Trash2,
-  Check,
-  X,
   Users,
-  TrendingUp,
   AlertCircle,
   CheckCircle,
   XCircle,
-  RefreshCw,
-  FileText,
-  Eye
+  RefreshCw
 } from 'lucide-react';
 
 const AdminAttendance = () => {
