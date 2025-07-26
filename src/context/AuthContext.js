@@ -120,26 +120,34 @@ export const AuthProvider = ({ children }) => {
       dispatch({ type: AUTH_ACTIONS.LOADING, payload: true });
       dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
 
-      const response = await authAPI.login(credentials);
+      // Demo mode - allow any email/password combination
+      const demoUser = {
+        _id: `demo_${Date.now()}`,
+        name: credentials.email.split('@')[0] || 'Demo User',
+        email: credentials.email,
+        role: credentials.email.includes('admin') ? 'admin' : 'employee',
+        department: 'Demo Department',
+        employeeId: `EMP${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
+        isActive: true,
+        createdAt: new Date().toISOString()
+      };
 
-      if (response.success) {
-        const { user, token } = response.data;
+      const demoToken = `demo_token_${Date.now()}`;
 
-        // Store in localStorage
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
+      // Store in localStorage
+      localStorage.setItem('token', demoToken);
+      localStorage.setItem('user', JSON.stringify(demoUser));
 
-        dispatch({
-          type: AUTH_ACTIONS.LOGIN_SUCCESS,
-          payload: { user, token },
-        });
+      dispatch({
+        type: AUTH_ACTIONS.LOGIN_SUCCESS,
+        payload: { user: demoUser, token: demoToken },
+      });
 
-        toast.success(`Welcome back, ${user.name}!`);
-        return { success: true, user };
-      }
+      toast.success(`Welcome back, ${demoUser.name}! (Demo Mode)`);
+      return { success: true, user: demoUser };
     } catch (error) {
       console.error('Login error:', error);
-      const errorMessage = error.message || 'Login failed. Please try again.';
+      const errorMessage = 'Login failed. Please try again.';
       
       dispatch({
         type: AUTH_ACTIONS.SET_ERROR,
@@ -157,26 +165,37 @@ export const AuthProvider = ({ children }) => {
       dispatch({ type: AUTH_ACTIONS.LOADING, payload: true });
       dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
 
-      const response = await authAPI.register(userData);
+      // Demo mode - create user without API
+      const demoUser = {
+        _id: `demo_${Date.now()}`,
+        name: userData.name,
+        email: userData.email,
+        role: userData.role,
+        department: userData.department,
+        employeeId: `EMP${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
+        isActive: true,
+        createdAt: new Date().toISOString()
+      };
 
-      if (response.success) {
-        const { user, token } = response.data;
+      const demoToken = `demo_token_${Date.now()}`;
+      
+      // Store token and user data
+      localStorage.setItem('token', demoToken);
+      localStorage.setItem('user', JSON.stringify(demoUser));
 
-        // Store in localStorage
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
+      dispatch({
+        type: AUTH_ACTIONS.LOGIN_SUCCESS,
+        payload: {
+          user: demoUser,
+          token: demoToken,
+        },
+      });
 
-        dispatch({
-          type: AUTH_ACTIONS.LOGIN_SUCCESS,
-          payload: { user, token },
-        });
-
-        toast.success(`Welcome, ${user.name}! Your account has been created.`);
-        return { success: true, user };
-      }
+      toast.success(`Welcome, ${demoUser.name}! Your account has been created. (Demo Mode)`);
+      return { success: true, user: demoUser };
     } catch (error) {
       console.error('Registration error:', error);
-      const errorMessage = error.message || 'Registration failed. Please try again.';
+      const errorMessage = 'Registration failed. Please try again.';
       
       dispatch({
         type: AUTH_ACTIONS.SET_ERROR,
