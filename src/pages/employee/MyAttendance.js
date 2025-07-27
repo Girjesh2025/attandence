@@ -21,8 +21,81 @@ const MyAttendance = () => {
   const loadRecords = async () => {
     try {
       setLoading(true);
-      const response = await attendanceAPI.getMyRecords(filters);
-      setRecords(response.data.attendance || []);
+      
+      // Check if user token is demo token
+      const token = localStorage.getItem('token');
+      const isDemo = token && token.startsWith('demo_token_');
+      
+      if (isDemo) {
+        // Demo mode - use mock data
+        const mockRecords = [
+          {
+            _id: '1',
+            date: '2025-07-26',
+            checkIn: '09:15',
+            checkOut: null,
+            status: 'present',
+            hoursWorked: 0,
+            location: 'Office',
+            remarks: 'Current day - still working'
+          },
+          {
+            _id: '2',
+            date: '2025-07-25',
+            checkIn: '09:00',
+            checkOut: '17:30',
+            status: 'present',
+            hoursWorked: 8.5,
+            location: 'Office',
+            remarks: 'Regular day'
+          },
+          {
+            _id: '3',
+            date: '2025-07-24',
+            checkIn: '09:45',
+            checkOut: '17:15',
+            status: 'late',
+            hoursWorked: 7.5,
+            location: 'Office',
+            remarks: 'Traffic delay'
+          },
+          {
+            _id: '4',
+            date: '2025-07-23',
+            checkIn: '09:10',
+            checkOut: '17:45',
+            status: 'present',
+            hoursWorked: 8.6,
+            location: 'Office',
+            remarks: 'Productive day'
+          },
+          {
+            _id: '5',
+            date: '2025-07-22',
+            checkIn: null,
+            checkOut: null,
+            status: 'absent',
+            hoursWorked: 0,
+            location: null,
+            remarks: 'Sick leave'
+          },
+          {
+            _id: '6',
+            date: '2025-07-19',
+            checkIn: '09:00',
+            checkOut: '13:00',
+            status: 'half-day',
+            hoursWorked: 4,
+            location: 'Office',
+            remarks: 'Personal work'
+          }
+        ];
+        setRecords(mockRecords);
+      } else {
+        // Real mode - make API call
+        const response = await attendanceAPI.getMyRecords(filters);
+        setRecords(response.data.attendance || []);
+      }
     } catch (error) {
       console.error('Error loading records:', error);
     } finally {

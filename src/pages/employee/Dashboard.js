@@ -30,25 +30,89 @@ function EmployeeDashboard() {
     try {
       setLoading(true);
       
-      // Load today's status
-      const todayResponse = await attendanceAPI.getTodayStatus();
-      setTodayStatus(todayResponse.data);
-
-      // Load recent records (last 7 days)
-      const recordsResponse = await attendanceAPI.getMyRecords({
-        limit: 7,
-        sortBy: 'date',
-        sortOrder: 'desc'
-      });
-      setRecentRecords(recordsResponse.data?.records || []);
-
-      // Calculate basic stats
-      const allRecordsResponse = await attendanceAPI.getMyRecords({
-        limit: 100 // Get more records for stats
-      });
-      const allRecords = allRecordsResponse.data?.records || [];
+      // Check if user token is demo token
+      const token = localStorage.getItem('token');
+      const isDemo = token && token.startsWith('demo_token_');
       
-      calculateStats(allRecords);
+      if (isDemo) {
+        // Demo mode - use mock data
+        const mockTodayStatus = {
+          isCheckedIn: true,
+          checkInTime: '2025-07-26T09:15:00Z',
+          checkOutTime: null,
+          status: 'present',
+          hoursWorked: 0,
+          date: '2025-07-26'
+        };
+        
+        const mockRecentRecords = [
+          {
+            _id: '1',
+            date: '2025-07-26',
+            checkIn: '2025-07-26T09:15:00Z',
+            checkOut: null,
+            status: 'present',
+            hoursWorked: 0
+          },
+          {
+            _id: '2',
+            date: '2025-07-25',
+            checkIn: '2025-07-25T09:00:00Z',
+            checkOut: '2025-07-25T17:30:00Z',
+            status: 'present',
+            hoursWorked: 8.5
+          },
+          {
+            _id: '3',
+            date: '2025-07-24',
+            checkIn: '2025-07-24T08:45:00Z',
+            checkOut: '2025-07-24T17:15:00Z',
+            status: 'present',
+            hoursWorked: 8.5
+          },
+          {
+            _id: '4',
+            date: '2025-07-23',
+            checkIn: '2025-07-23T09:10:00Z',
+            checkOut: '2025-07-23T17:45:00Z',
+            status: 'present',
+            hoursWorked: 8.6
+          },
+          {
+            _id: '5',
+            date: '2025-07-22',
+            checkIn: null,
+            checkOut: null,
+            status: 'absent',
+            hoursWorked: 0
+          }
+        ];
+        
+        setTodayStatus(mockTodayStatus);
+        setRecentRecords(mockRecentRecords);
+        calculateStats(mockRecentRecords);
+      } else {
+        // Real mode - make API calls
+        // Load today's status
+        const todayResponse = await attendanceAPI.getTodayStatus();
+        setTodayStatus(todayResponse.data);
+
+        // Load recent records (last 7 days)
+        const recordsResponse = await attendanceAPI.getMyRecords({
+          limit: 7,
+          sortBy: 'date',
+          sortOrder: 'desc'
+        });
+        setRecentRecords(recordsResponse.data?.records || []);
+
+        // Calculate basic stats
+        const allRecordsResponse = await attendanceAPI.getMyRecords({
+          limit: 100 // Get more records for stats
+        });
+        const allRecords = allRecordsResponse.data?.records || [];
+        
+        calculateStats(allRecords);
+      }
     } catch (error) {
       toast.error('Failed to load dashboard data');
       console.error('Dashboard data error:', error);

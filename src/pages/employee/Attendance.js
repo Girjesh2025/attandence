@@ -36,8 +36,28 @@ const Attendance = () => {
   const loadTodayStatus = async () => {
     try {
       setLoading(true);
-      const response = await attendanceAPI.getTodayStatus();
-      setTodayStatus(response.data);
+      
+      // Check if user token is demo token
+      const token = localStorage.getItem('token');
+      const isDemo = token && token.startsWith('demo_token_');
+      
+      if (isDemo) {
+        // Demo mode - use mock data
+        const mockStatus = {
+          isCheckedIn: true,
+          checkInTime: '2025-07-26T09:15:00Z',
+          checkOutTime: null,
+          status: 'present',
+          location: 'Office',
+          remarks: 'Starting work for the day',
+          date: '2025-07-26'
+        };
+        setTodayStatus(mockStatus);
+      } else {
+        // Real mode - make API call
+        const response = await attendanceAPI.getTodayStatus();
+        setTodayStatus(response.data);
+      }
     } catch (error) {
       console.error('Error loading today status:', error);
     } finally {
@@ -57,15 +77,36 @@ const Attendance = () => {
     try {
       setActionLoading(true);
       
-      const response = await attendanceAPI.checkIn(formData);
+      // Check if user token is demo token
+      const token = localStorage.getItem('token');
+      const isDemo = token && token.startsWith('demo_token_');
       
-      if (response.success) {
-        toast.success('Check-in recorded successfully!');
+      if (isDemo) {
+        // Demo mode - simulate successful check-in
+        toast.success('Check-in recorded successfully! (Demo Mode)');
+        const updatedStatus = {
+          ...todayStatus,
+          isCheckedIn: true,
+          checkInTime: new Date().toISOString(),
+          status: 'present',
+          location: formData.location,
+          remarks: formData.remarks
+        };
+        setTodayStatus(updatedStatus);
         setFormData({ location: 'Office', remarks: '' });
-        await loadTodayStatus();
+      } else {
+        // Real mode - make API call
+        const response = await attendanceAPI.checkIn(formData);
+        
+        if (response.success) {
+          toast.success('Check-in recorded successfully!');
+          setFormData({ location: 'Office', remarks: '' });
+          await loadTodayStatus();
+        }
       }
     } catch (error) {
       console.error('Check-in error:', error);
+      toast.error('Failed to record check-in');
     } finally {
       setActionLoading(false);
     }
@@ -75,15 +116,35 @@ const Attendance = () => {
     try {
       setActionLoading(true);
       
-      const response = await attendanceAPI.checkOut(formData);
+      // Check if user token is demo token
+      const token = localStorage.getItem('token');
+      const isDemo = token && token.startsWith('demo_token_');
       
-      if (response.success) {
-        toast.success('Check-out recorded successfully!');
+      if (isDemo) {
+        // Demo mode - simulate successful check-out
+        toast.success('Check-out recorded successfully! (Demo Mode)');
+        const updatedStatus = {
+          ...todayStatus,
+          isCheckedIn: false,
+          checkOutTime: new Date().toISOString(),
+          location: formData.location,
+          remarks: formData.remarks
+        };
+        setTodayStatus(updatedStatus);
         setFormData({ location: 'Office', remarks: '' });
-        await loadTodayStatus();
+      } else {
+        // Real mode - make API call
+        const response = await attendanceAPI.checkOut(formData);
+        
+        if (response.success) {
+          toast.success('Check-out recorded successfully!');
+          setFormData({ location: 'Office', remarks: '' });
+          await loadTodayStatus();
+        }
       }
     } catch (error) {
       console.error('Check-out error:', error);
+      toast.error('Failed to record check-out');
     } finally {
       setActionLoading(false);
     }
